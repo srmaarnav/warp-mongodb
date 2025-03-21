@@ -4,15 +4,15 @@ use db::DB;
 use std::convert::Infallible;
 use warp::{Filter, Rejection};
 
-type Result<T> = std::result::Result<T, error::Errror>;
+type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
 mod db;
 mod error;
-mod handlers;
+mod handler;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct book {
+pub struct Book {
     pub id: String,
     pub name: String,
     pub author: String,
@@ -30,24 +30,24 @@ async fn main() -> Result<()>{
     .and(warp::post())
     .and(warp::body::json())
     .and(with_db(db.clone()))
-    .and_then(handlers::create_book_handler)
+    .and_then(handler::create_book_handler)
     .or(book
         .and(warp::put())
         .and(warp::path::param())
         .and(warp::body::json())
         .and(with_db(db.clone()))
-        .and_then(handlers::edit_book_handler)
+        .and_then(handler::edit_book_handler)
     )
     .or(book
         .and(warp::delete())
         .and(warp::path::param())
         .and(with_db(db.clone()))
-        .and_then(handlers::delete_book_handler)
+        .and_then(handler::delete_book_handler)
     )
     .or(book
         .and(warp::get())
         .and(with_db(db.clone()))
-        .and_then(handlers::list_books_handler)
+        .and_then(handler::list_books_handler)
     );
 
     let routes = book_routes.recover(error::handle_rejection);

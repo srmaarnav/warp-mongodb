@@ -3,6 +3,7 @@ build:
 
 clean:
 	@cargo clean
+	@sudo rm -rf data/
 
 TESTS = ""
 test:
